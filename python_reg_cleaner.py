@@ -1,10 +1,6 @@
 import re
 import sys
 
-# filepath = sys.argv[1]
-# regexp = sys.argv[2]
-# output = sys.argv[3]
-
 filepath = "--File path here--"
 regexp = "^(.+? .+? .+?) (.*?) (.*?): (.*?)$"
 outpath = "output.csv"

@@ -1,0 +1,501 @@
+<form>
+  <label>ICT3204</label>
+  <row>
+    <panel>
+      <title>SSH_Authorized Keys</title>
+      <chart>
+        <title>Time x File Written To</title>
+        <search>
+          <query>index="ict3204" source="syslogV2.csv"  incrond | eval status=case(like(info, "%IN_ACCESS%"), "File Accessed", like(info, "%IN_ATTRIB%"), "File Metadata Modified",like(info, "%IN_CLOSE_WRITE%"), "File Written To", like(info, "%IN_CLOSE_NOWRITE%"), "File Opened Not Written To", like(info, "%IN_CREATE%"), "File Created", like(info, "%IN_DELETE%"), "File Deleted", like(info, "%IN_MODIFY%"), "File Modified", like(info, "%IN_MOVE_SELF%"), "File Moved", like(info, "%IN_OPEN%"), "File Opened", true(), 0 ) | where status = "File Written To" | eval targetfile=case(like(info, "%sshd_config%"), "SSH Configuration File", true(), 0)|  table _time, info, status, targetfile  | search targetfile = "SSH Configuration File"  | dedup _time  | timechart count(info) by status</query>
+          <earliest>0</earliest>
+          <latest></latest>
+        </search>
+        <option name="charting.chart">line</option>
+        <option name="charting.drilldown">none</option>
+        <option name="charting.axisLabelsX.majorLabelStyle.overflowMode">ellipsisNone</option>
+        <option name="charting.axisLabelsX.majorLabelStyle.rotation">0</option>
+        <option name="charting.axisTitleX.visibility">visible</option>
+        <option name="charting.axisTitleY.visibility">visible</option>
+        <option name="charting.axisTitleY2.visibility">visible</option>
+        <option name="charting.axisX.scale">linear</option>
+        <option name="charting.axisY.scale">linear</option>
+        <option name="charting.axisY2.enabled">false</option>
+        <option name="charting.axisY2.scale">inherit</option>
+        <option name="charting.chart.bubbleMaximumSize">50</option>
+        <option name="charting.chart.bubbleMinimumSize">10</option>
+        <option name="charting.chart.bubbleSizeBy">area</option>
+        <option name="charting.chart.nullValueMode">gaps</option>
+        <option name="charting.chart.sliceCollapsingThreshold">0.01</option>
+        <option name="charting.chart.stackMode">default</option>
+        <option name="charting.chart.style">shiny</option>
+        <option name="charting.layout.splitSeries">0</option>
+        <option name="charting.legend.labelStyle.overflowMode">ellipsisMiddle</option>
+        <option name="charting.legend.placement">right</option>
+      </chart>
+    </panel>
+    <panel>
+      <title>SSH_Authorized Keys</title>
+      <table>
+        <title>References</title>
+        <search>
+          <query>index = "ict3204" source="authlogV2.csv" "sshd[" | eval _time=strftime(_time,"%d/%m/%Y %H:%M:%S.%1Q")| table datetime cmd info _time | eval Type=case(like(info, "%public%"), "Public Key Authentication", like(info, "%password%"), "Password Authentication",  like(info, "%session closed%"), "Session Closed", true(), 0) | where Type!="0" | eval info =Type|stats values(Type) as AuthenSession  by _time,cmd|stats count(AuthenSession) as tester by AuthenSession,cmd |xyseries AuthenSession cmd tester</query>
+          <earliest>0</earliest>
+          <latest></latest>
+        </search>
+        <option name="count">100</option>
+        <option name="dataOverlayMode">none</option>
+        <option name="drilldown">none</option>
+        <option name="percentagesRow">false</option>
+        <option name="refresh.display">progressbar</option>
+        <option name="rowNumbers">false</option>
+        <option name="totalsRow">false</option>
+        <option name="wrap">true</option>
+      </table>
+    </panel>
+  </row>
+  <row>
+    <panel>
+      <title>SSH_Authorized Keys</title>
+      <chart>
+        <title>Sessions opened</title>
+        <search>
+          <query>index="ict3204" source="authlogV2.csv" "sshd[" |  eval Type=case(like(info, "%public%"), "Public Key Authentication", like(info, "%password%"), "Password Authentication",  like(info, "%session closed%"), "Session Closed", true(), 0) | where Type!="0" | eval info =Type| timechart count(Type) by cmd</query>
+          <earliest>0</earliest>
+        </search>
+        <option name="charting.axisLabelsX.majorLabelStyle.overflowMode">ellipsisNone</option>
+        <option name="charting.axisLabelsX.majorLabelStyle.rotation">0</option>
+        <option name="charting.axisTitleX.visibility">collapsed</option>
+        <option name="charting.axisTitleY.visibility">collapsed</option>
+        <option name="charting.axisTitleY2.visibility">collapsed</option>
+        <option name="charting.axisX.abbreviation">none</option>
+        <option name="charting.axisX.scale">linear</option>
+        <option name="charting.axisY.abbreviation">none</option>
+        <option name="charting.axisY.scale">log</option>
+        <option name="charting.axisY2.abbreviation">none</option>
+        <option name="charting.axisY2.enabled">false</option>
+        <option name="charting.axisY2.scale">inherit</option>
+        <option name="charting.chart">line</option>
+        <option name="charting.chart.bubbleMaximumSize">50</option>
+        <option name="charting.chart.bubbleMinimumSize">10</option>
+        <option name="charting.chart.bubbleSizeBy">area</option>
+        <option name="charting.chart.nullValueMode">zero</option>
+        <option name="charting.chart.showDataLabels">none</option>
+        <option name="charting.chart.sliceCollapsingThreshold">0.01</option>
+        <option name="charting.chart.stackMode">default</option>
+        <option name="charting.chart.style">shiny</option>
+        <option name="charting.drilldown">none</option>
+        <option name="charting.layout.splitSeries">1</option>
+        <option name="charting.layout.splitSeries.allowIndependentYRanges">0</option>
+        <option name="charting.legend.labelStyle.overflowMode">ellipsisMiddle</option>
+        <option name="charting.legend.mode">standard</option>
+        <option name="charting.legend.placement">none</option>
+        <option name="charting.lineWidth">2</option>
+        <option name="refresh.display">progressbar</option>
+        <option name="trellis.enabled">1</option>
+        <option name="trellis.scales.shared">1</option>
+        <option name="trellis.size">medium</option>
+        <option name="trellis.splitBy">cmd</option>
+      </chart>
+    </panel>
+  </row>
+  <row>
+    <panel>
+      <title>SSH_Authorized Keys</title>
+      <table>
+        <title>Authenticated Events</title>
+        <search>
+          <query>index = "ict3204" source="authlogV2.csv" "sshd[" | table datetime cmd info | eval Type=case(like(info, "%public%"), "Public Key Authentication", like(info, "%password%"), "Password Authentication",  like(info, "%session closed%"), "Session Closed", true(), 0) | where Type!="0"</query>
+          <earliest>0</earliest>
+          <latest></latest>
+        </search>
+        <option name="wrap">true</option>
+        <option name="rowNumbers">false</option>
+        <option name="dataOverlayMode">none</option>
+        <option name="count">10</option>
+        <option name="charting.axisLabelsX.majorLabelStyle.overflowMode">ellipsisNone</option>
+        <option name="charting.axisLabelsX.majorLabelStyle.rotation">0</option>
+        <option name="charting.axisTitleX.visibility">visible</option>
+        <option name="charting.axisTitleY.visibility">visible</option>
+        <option name="charting.axisTitleY2.visibility">visible</option>
+        <option name="charting.axisX.scale">linear</option>
+        <option name="charting.axisY.scale">linear</option>
+        <option name="charting.axisY2.enabled">false</option>
+        <option name="charting.axisY2.scale">inherit</option>
+        <option name="charting.chart">line</option>
+        <option name="charting.chart.bubbleMaximumSize">50</option>
+        <option name="charting.chart.bubbleMinimumSize">10</option>
+        <option name="charting.chart.bubbleSizeBy">area</option>
+        <option name="charting.chart.nullValueMode">gaps</option>
+        <option name="charting.chart.sliceCollapsingThreshold">0.01</option>
+        <option name="charting.chart.stackMode">default</option>
+        <option name="charting.chart.style">shiny</option>
+        <option name="charting.drilldown">all</option>
+        <option name="charting.layout.splitSeries">0</option>
+        <option name="charting.legend.labelStyle.overflowMode">ellipsisMiddle</option>
+        <option name="charting.legend.placement">right</option>
+        <option name="drilldown">cell</option>
+      </table>
+    </panel>
+  </row>
+  <row>
+    <panel>
+      <title>SSH Local Account Creation</title>
+      <table>
+        <title>SSH account creation and usermod to sudoers list</title>
+        <search>
+          <query>index="ict3204"  source="authlogV1.csv"  "useradd["  | rex field=info "name=(?&lt;username&gt;.*? )"  | where username!="" | stats count(username) as counter, values(username) as username by cmd, _time |  eval action_taken=if(like(cmd, "%useradd%"), "User created", "") | table _time, action_taken ,username</query>
+          <earliest>0</earliest>
+          <latest></latest>
+        </search>
+        <option name="wrap">true</option>
+        <option name="rowNumbers">false</option>
+        <option name="dataOverlayMode">none</option>
+        <option name="drilldown">cell</option>
+        <option name="count">10</option>
+      </table>
+    </panel>
+    <panel>
+      <title>SSH Local Account Creation</title>
+      <table>
+        <title>SSH account creation and usermod to sudoers list only</title>
+        <search>
+          <query>index="ict3204"  source="authlogV1.csv" 
+"useradd[" OR "usermod"  | rex field=info "name=(?&lt;username&gt;.*? )"  | rex field=info "add '(?&lt;username&gt;.*?)' .*?sudo.*?'"  | where username!="" | stats count(username) as counter, values(username) as username by cmd, _time | where counter &gt; 1 | eval action_taken=case(like(cmd, "%useradd%"), "User created", like(cmd, "%usermod%"), "User added to Sudoers List", true(), 1) | table _time, action_taken ,username</query>
+          <earliest>0</earliest>
+          <latest></latest>
+        </search>
+        <option name="wrap">true</option>
+        <option name="rowNumbers">false</option>
+        <option name="drilldown">cell</option>
+        <option name="dataOverlayMode">none</option>
+        <option name="count">10</option>
+      </table>
+    </panel>
+  </row>
+  <row>
+    <panel>
+      <title>Port Knocking</title>
+      <chart>
+        <title>General Network Traffic</title>
+        <search>
+          <query>index="ict3204" source="netdumpV1.csv" ip_dst=192.168.56.103 tcp_dstport!="" | timechart span=1ms count(tcp_dstport) by tcp_dstport</query>
+          <earliest>0</earliest>
+          <latest></latest>
+        </search>
+        <option name="wrap">undefined</option>
+        <option name="rowNumbers">undefined</option>
+        <option name="charting.axisLabelsX.majorLabelStyle.overflowMode">ellipsisNone</option>
+        <option name="charting.axisLabelsX.majorLabelStyle.rotation">0</option>
+        <option name="charting.axisTitleX.visibility">visible</option>
+        <option name="charting.axisTitleY.visibility">visible</option>
+        <option name="charting.axisTitleY2.visibility">visible</option>
+        <option name="charting.axisX.scale">linear</option>
+        <option name="charting.axisY.scale">linear</option>
+        <option name="charting.axisY2.enabled">false</option>
+        <option name="charting.axisY2.scale">inherit</option>
+        <option name="charting.chart">line</option>
+        <option name="charting.chart.bubbleMaximumSize">50</option>
+        <option name="charting.chart.bubbleMinimumSize">10</option>
+        <option name="charting.chart.bubbleSizeBy">area</option>
+        <option name="charting.chart.nullValueMode">gaps</option>
+        <option name="charting.chart.sliceCollapsingThreshold">0.01</option>
+        <option name="charting.chart.stackMode">default</option>
+        <option name="charting.chart.style">shiny</option>
+        <option name="charting.drilldown">all</option>
+        <option name="charting.layout.splitSeries">1</option>
+        <option name="charting.legend.labelStyle.overflowMode">ellipsisMiddle</option>
+        <option name="charting.legend.placement">right</option>
+      </chart>
+    </panel>
+  </row>
+  <row>
+    <panel>
+      <title>Port Knocking</title>
+      <input type="dropdown" token="portknock" searchWhenChanged="true">
+        <label>Port Knock Event</label>
+        <search>
+          <query>index="ict3204" source="syslogV1.csv"
+service=*knockd* info=*"running command"* | streamstats count as event_id | bin _time span=1ms as timer | table event_id info _time, timer</query>
+          <earliest>0</earliest>
+          <latest></latest>
+        </search>
+        <fieldForLabel>event_id</fieldForLabel>
+        <fieldForValue>timer</fieldForValue>
+      </input>
+      <table>
+        <title>Port knock commands run in syslog</title>
+        <search>
+          <query>index="ict3204" source="syslogV1.csv" service=*knockd* info=*"OPEN"* | streamstats count as event_id | table event_id info _time</query>
+          <earliest>0</earliest>
+          <latest></latest>
+        </search>
+        <option name="wrap">true</option>
+        <option name="rowNumbers">false</option>
+        <option name="dataOverlayMode">none</option>
+        <option name="drilldown">cell</option>
+        <option name="count">10</option>
+      </table>
+    </panel>
+    <panel>
+      <title>Port Knocking</title>
+      <chart>
+        <title>Port Activity</title>
+        <search>
+          <query>index="ict3204" source="netdumpV1.csv"  ip_dst="192.168.56.103" tcp_dstport!="" | bin _time span=1ms as time |  eval isBetween=if(time&gt;=($portknock$-100) AND time&lt;=($portknock$+75), "Yes", "No") | where isBetween=="Yes" | eval tcp_dstport=tcp_dstport+" from "+tcp_srcport | timechart span=250ms count(tcp_dstport) by tcp_dstport</query>
+          <earliest>0</earliest>
+          <latest></latest>
+        </search>
+        <option name="charting.axisLabelsX.majorLabelStyle.overflowMode">ellipsisNone</option>
+        <option name="charting.axisLabelsX.majorLabelStyle.rotation">0</option>
+        <option name="charting.axisTitleX.visibility">visible</option>
+        <option name="charting.axisTitleY.visibility">visible</option>
+        <option name="charting.axisTitleY2.visibility">visible</option>
+        <option name="charting.axisX.scale">linear</option>
+        <option name="charting.axisY.scale">linear</option>
+        <option name="charting.axisY2.enabled">false</option>
+        <option name="charting.axisY2.scale">inherit</option>
+        <option name="charting.chart">area</option>
+        <option name="charting.chart.bubbleMaximumSize">50</option>
+        <option name="charting.chart.bubbleMinimumSize">10</option>
+        <option name="charting.chart.bubbleSizeBy">area</option>
+        <option name="charting.chart.nullValueMode">gaps</option>
+        <option name="charting.chart.sliceCollapsingThreshold">0.01</option>
+        <option name="charting.chart.stackMode">default</option>
+        <option name="charting.chart.style">shiny</option>
+        <option name="charting.drilldown">none</option>
+        <option name="charting.layout.splitSeries">1</option>
+        <option name="charting.legend.labelStyle.overflowMode">ellipsisEnd</option>
+        <option name="charting.legend.placement">right</option>
+        <option name="wrap">true</option>
+        <option name="rowNumbers">false</option>
+        <option name="dataOverlayMode">none</option>
+      </chart>
+    </panel>
+  </row>
+  <row>
+    <panel>
+      <title>Port Knocking</title>
+      <table>
+        <title>Port Activity to and from IP Source</title>
+        <search>
+          <query>index="ict3204" source="netdumpV1.csv" tcp_dstport!="" | bin _time span=1ms as time |  eval isBetween=if(time&gt;=($portknock$-100) AND time&lt;=($portknock$+75), "Yes", "No") | where isBetween=="Yes" | eval port_connection=tcp_dstport+" from "+tcp_srcport | stats sum(ip_len) by port_connection,ip_src,ip_dst | sort - ip_src</query>
+          <earliest>0</earliest>
+          <latest></latest>
+        </search>
+        <option name="wrap">true</option>
+        <option name="rowNumbers">false</option>
+        <option name="dataOverlayMode">none</option>
+        <option name="drilldown">cell</option>
+        <option name="count">10</option>
+      </table>
+    </panel>
+  </row>
+  <row>
+    <panel>
+      <title>Fragmented Packets</title>
+      <input type="dropdown" token="strict" searchWhenChanged="true">
+        <label>Strictness (Stronger to catch smaller files)</label>
+        <choice value="5">Weakest</choice>
+        <choice value="4">Weak</choice>
+        <choice value="3">Average</choice>
+        <choice value="2">Strong</choice>
+        <choice value="1">Stronger</choice>
+        <default>3</default>
+      </input>
+      <table>
+        <title>Results</title>
+        <search>
+          <query>index="ict3204" source="netdumpV1.csv" ip_src = 192.168.56.103 | eval ip_proto=case(ip_proto==6, "TCP", ip_proto==17,"UDP", 1=1, "OTHER PROTOCOL") | stats count(ip_len) as packet_count, values(ip_dst) as ip_dst, values(udp_dstport) as dstport, values(tcp_dstport) as dstport, estdc(ip_id) as unique_id min(frame_time) as time   by ip_len, ip_proto | where unique_id &lt;packet_count/$strict$ AND dstport!="0"| table packet_count ip_len ip_dst dstport ip_proto, time  | sort - packet_count</query>
+          <earliest>0</earliest>
+          <latest></latest>
+        </search>
+        <option name="wrap">true</option>
+        <option name="rowNumbers">false</option>
+        <option name="dataOverlayMode">none</option>
+        <option name="count">10</option>
+        <option name="charting.axisLabelsX.majorLabelStyle.overflowMode">ellipsisNone</option>
+        <option name="charting.axisLabelsX.majorLabelStyle.rotation">0</option>
+        <option name="charting.axisTitleX.visibility">visible</option>
+        <option name="charting.axisTitleY.visibility">visible</option>
+        <option name="charting.axisTitleY2.visibility">visible</option>
+        <option name="charting.axisX.scale">linear</option>
+        <option name="charting.axisY.scale">linear</option>
+        <option name="charting.axisY2.enabled">false</option>
+        <option name="charting.axisY2.scale">inherit</option>
+        <option name="charting.chart">bar</option>
+        <option name="charting.chart.bubbleMaximumSize">50</option>
+        <option name="charting.chart.bubbleMinimumSize">10</option>
+        <option name="charting.chart.bubbleSizeBy">area</option>
+        <option name="charting.chart.nullValueMode">gaps</option>
+        <option name="charting.chart.sliceCollapsingThreshold">0.01</option>
+        <option name="charting.chart.stackMode">default</option>
+        <option name="charting.chart.style">shiny</option>
+        <option name="charting.drilldown">all</option>
+        <option name="charting.layout.splitSeries">0</option>
+        <option name="charting.legend.labelStyle.overflowMode">ellipsisMiddle</option>
+        <option name="charting.legend.placement">right</option>
+        <option name="drilldown">cell</option>
+      </table>
+    </panel>
+  </row>
+  <row>
+    <panel>
+      <title>Web Exfiltration</title>
+      <input type="dropdown" token="web_ip" searchWhenChanged="true">
+        <label>Upload Location</label>
+        <search>
+          <query>index="ict3204" | lookup webservice tls_handshake_extensions_server_name | where service_name!="" | stats values(frame_time) by ip_dst, service_name | table ip_dst, service_name</query>
+        </search>
+        <fieldForLabel>ip_dst</fieldForLabel>
+        <fieldForValue>ip_dst</fieldForValue>
+      </input>
+      <table>
+        <title>Web service used</title>
+        <search>
+          <query>index="ict3204" | lookup webservice tls_handshake_extensions_server_name | where service_name!="" | stats values(frame_time) by ip_dst, service_name,  | table ip_dst, service_name</query>
+          <earliest>0</earliest>
+        </search>
+        <option name="wrap">true</option>
+        <option name="rowNumbers">false</option>
+        <option name="dataOverlayMode">none</option>
+        <option name="drilldown">cell</option>
+        <option name="count">10</option>
+      </table>
+    </panel>
+  </row>
+  <row>
+    <panel>
+      <title>Web Exfiltration</title>
+      <chart>
+        <title>Traffic to specified location</title>
+        <search>
+          <query>index="ict3204" ip_dst=$web_ip$ | timechart span=1s sum(ip_len) by ip_dst</query>
+          <earliest>0</earliest>
+          <latest></latest>
+        </search>
+        <option name="wrap">true</option>
+        <option name="rowNumbers">false</option>
+        <option name="dataOverlayMode">none</option>
+        <option name="charting.axisLabelsX.majorLabelStyle.overflowMode">ellipsisNone</option>
+        <option name="charting.axisLabelsX.majorLabelStyle.rotation">0</option>
+        <option name="charting.axisTitleX.visibility">visible</option>
+        <option name="charting.axisTitleY.visibility">visible</option>
+        <option name="charting.axisTitleY2.visibility">visible</option>
+        <option name="charting.axisX.scale">linear</option>
+        <option name="charting.axisY.scale">linear</option>
+        <option name="charting.axisY2.enabled">false</option>
+        <option name="charting.axisY2.scale">inherit</option>
+        <option name="charting.chart">line</option>
+        <option name="charting.chart.bubbleMaximumSize">50</option>
+        <option name="charting.chart.bubbleMinimumSize">10</option>
+        <option name="charting.chart.bubbleSizeBy">area</option>
+        <option name="charting.chart.nullValueMode">zero</option>
+        <option name="charting.chart.sliceCollapsingThreshold">0.01</option>
+        <option name="charting.chart.stackMode">default</option>
+        <option name="charting.chart.style">shiny</option>
+        <option name="charting.drilldown">none</option>
+        <option name="charting.layout.splitSeries">1</option>
+        <option name="charting.legend.labelStyle.overflowMode">ellipsisMiddle</option>
+        <option name="charting.legend.placement">right</option>
+        <option name="count">10</option>
+      </chart>
+    </panel>
+    <panel>
+      <title>Web Exfiltration</title>
+      <table>
+        <title>Total bytes transferred</title>
+        <search>
+          <query>index="ict3204" ip_dst=$web_ip$ | stats sum(ip_len) as total_size by ip_dst</query>
+          <earliest>0</earliest>
+        </search>
+        <option name="wrap">true</option>
+        <option name="rowNumbers">false</option>
+        <option name="drilldown">cell</option>
+        <option name="dataOverlayMode">none</option>
+        <option name="count">10</option>
+      </table>
+    </panel>
+  </row>
+  <row>
+    <panel>
+      <title>Scheduled Transfer</title>
+      <chart>
+        <title>TCP connections</title>
+        <search>
+          <query>index="ict3204"  source="dumpsched.csv" | lookup trusted ip_dst | eval status=if(status="Trusted", status, "Untrusted") | where status!="Trusted" AND tcp_dstport!="" | timechart span=1m sum(ip_len) by ip_dst</query>
+          <earliest>0</earliest>
+        </search>
+        <option name="charting.axisLabelsX.majorLabelStyle.overflowMode">ellipsisNone</option>
+        <option name="charting.axisLabelsX.majorLabelStyle.rotation">0</option>
+        <option name="charting.axisTitleX.visibility">visible</option>
+        <option name="charting.axisTitleY.visibility">visible</option>
+        <option name="charting.axisTitleY2.visibility">visible</option>
+        <option name="charting.axisX.scale">linear</option>
+        <option name="charting.axisY.scale">linear</option>
+        <option name="charting.axisY2.enabled">false</option>
+        <option name="charting.axisY2.scale">inherit</option>
+        <option name="charting.chart">line</option>
+        <option name="charting.chart.bubbleMaximumSize">50</option>
+        <option name="charting.chart.bubbleMinimumSize">10</option>
+        <option name="charting.chart.bubbleSizeBy">area</option>
+        <option name="charting.chart.nullValueMode">zero</option>
+        <option name="charting.chart.sliceCollapsingThreshold">0.01</option>
+        <option name="charting.chart.stackMode">default</option>
+        <option name="charting.chart.style">shiny</option>
+        <option name="charting.drilldown">all</option>
+        <option name="charting.layout.splitSeries">1</option>
+        <option name="charting.legend.labelStyle.overflowMode">ellipsisMiddle</option>
+        <option name="charting.legend.placement">right</option>
+      </chart>
+    </panel>
+    <panel>
+      <title>Scheduled Transfer</title>
+      <chart>
+        <title>UDP Connections</title>
+        <search>
+          <query>index="ict3204" source="dumpsched.csv"| lookup trusted ip_dst | eval status=if(status="Trusted", status, "Untrusted") | where status!="Trusted" AND udp_dstport!="" | timechart span=1m sum(ip_len) by ip_dst</query>
+          <earliest>0</earliest>
+        </search>
+        <option name="charting.chart">line</option>
+        <option name="charting.axisY2.enabled">false</option>
+        <option name="charting.axisLabelsX.majorLabelStyle.overflowMode">ellipsisNone</option>
+        <option name="charting.axisLabelsX.majorLabelStyle.rotation">0</option>
+        <option name="charting.axisTitleX.visibility">visible</option>
+        <option name="charting.axisTitleY.visibility">visible</option>
+        <option name="charting.axisTitleY2.visibility">visible</option>
+        <option name="charting.axisX.scale">linear</option>
+        <option name="charting.axisY.scale">linear</option>
+        <option name="charting.axisY2.scale">inherit</option>
+        <option name="charting.chart.bubbleMaximumSize">50</option>
+        <option name="charting.chart.bubbleMinimumSize">10</option>
+        <option name="charting.chart.bubbleSizeBy">area</option>
+        <option name="charting.chart.nullValueMode">zero</option>
+        <option name="charting.chart.sliceCollapsingThreshold">0.01</option>
+        <option name="charting.chart.stackMode">default</option>
+        <option name="charting.chart.style">shiny</option>
+        <option name="charting.drilldown">all</option>
+        <option name="charting.layout.splitSeries">1</option>
+        <option name="charting.legend.labelStyle.overflowMode">ellipsisMiddle</option>
+        <option name="charting.legend.placement">right</option>
+      </chart>
+    </panel>
+  </row>
+  <row>
+    <panel>
+      <title>Scheduled Transfer</title>
+      <table>
+        <title>Ports used for connections</title>
+        <search>
+          <query>index="ict3204" source="dumpsched.csv"| lookup trusted ip_dst | eval status=if(status="Trusted", status, "Untrusted") | eval ip_proto=case(ip_proto=17, "UDP", ip_proto=6,"TCP",1=1,"Others") | where status!="Trusted" | eval dstport=if(udp_dstport!="", udp_dstport, tcp_dstport) | stats values(dstport) as dst_port by ip_dst, ip_proto</query>
+          <earliest>0</earliest>
+          <latest></latest>
+        </search>
+        <option name="wrap">true</option>
+        <option name="rowNumbers">false</option>
+        <option name="drilldown">cell</option>
+        <option name="dataOverlayMode">none</option>
+        <option name="count">10</option>
+      </table>
+    </panel>
+  </row>
+</form>

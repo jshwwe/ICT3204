@@ -3,9 +3,9 @@ from scapy.all import *
 import sys
 import os
 
-dst_ip = "10.0.2.17"
+dst_ip = "192.168.56.104"
 port = 555
-file_path = "/home/ubuntu/Documents/ICT3204/wk2prac-DataExplorationR_ThreatFrequency.pdf"
+file_path = "--File path here--"
 
 file_size = os.path.getsize(file_path)
 

@@ -5,11 +5,13 @@ import sys
 # regexp = sys.argv[2]
 # output = sys.argv[3]
 
-filepath = "syslogv5"
+filepath = "--File path here--"
 regexp = "^(.+? .+? .+?) (.*?) (.*?): (.*?)$"
 outpath = "output.csv"
+headers = "x,y,z\n"
 
 out_file = open(outpath, "w")
+out_file.write(headers)
 
 with open(filepath) as f:
     while True:

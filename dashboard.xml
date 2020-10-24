@@ -305,7 +305,13 @@ service=*knockd* info=*"running command"* | streamstats count as event_id | bin 
       <table>
         <title>Results</title>
         <search>
-          <query>index="ict3204" source="netdumpV1.csv" ip_src = 192.168.56.103 | eval ip_proto=case(ip_proto==6, "TCP", ip_proto==17,"UDP", 1=1, "OTHER PROTOCOL") | stats count(ip_len) as packet_count, values(ip_dst) as ip_dst, values(udp_dstport) as dstport, values(tcp_dstport) as dstport, estdc(ip_id) as unique_id min(frame_time) as time   by ip_len, ip_proto | where unique_id &lt;packet_count/$strict$ AND dstport!="0"| table packet_count ip_len ip_dst dstport ip_proto, time  | sort - packet_count</query>
+          <query>index="ict3204" source="netdumpV1.csv" ip_src = 192.168.56.103 
+| eval ip_proto=case(ip_proto==6, "TCP", ip_proto==17,"UDP", 1=1, "OTHER PROTOCOL") 
+| stats count(ip_len) as packet_count, values(ip_dst) as ip_dst, values(udp_dstport) as dstport, values(tcp_dstport) as dstport, dc(tcp_dstport) as unique_tcpport, dc(udp_dstport) as unique_udpport, estdc(ip_id) as unique_id min(frame_time) as time   by ip_len, ip_proto 
+| where unique_id &lt;packet_count/$strict$ AND dstport!=""
+| where unique_tcpport = 1 OR unique_udpport = 1 
+| table packet_count ip_len ip_dst dstport ip_proto, time  
+| sort - packet_count</query>
           <earliest>0</earliest>
           <latest></latest>
         </search>
@@ -399,21 +405,6 @@ service=*knockd* info=*"running command"* | streamstats count as event_id | bin 
         <option name="charting.legend.placement">right</option>
         <option name="count">10</option>
       </chart>
-    </panel>
-    <panel>
-      <title>Web Exfiltration</title>
-      <table>
-        <title>Total bytes transferred</title>
-        <search>
-          <query>index="ict3204" ip_dst=$web_ip$ | stats sum(ip_len) as total_size by ip_dst</query>
-          <earliest>0</earliest>
-        </search>
-        <option name="wrap">true</option>
-        <option name="rowNumbers">false</option>
-        <option name="drilldown">cell</option>
-        <option name="dataOverlayMode">none</option>
-        <option name="count">10</option>
-      </table>
     </panel>
   </row>
   <row>
